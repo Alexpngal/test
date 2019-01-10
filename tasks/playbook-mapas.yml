@@ -171,6 +171,7 @@
     shell: swapon /swapfile
     become: yes
     become_user: root
+    ignore_errors: yes
 
 #Function to active when host connection would go through SSH. Not needed for localhost
 #  - name: Modify keep alive
