@@ -299,9 +299,9 @@
      mode:  0755
 
   - name: Reload systemd configs
-    systemd:
-      daemon_reload: yes
-      name: crond
+    shell: systemctl daemon-reload
+    become: yes
+    become_user: root
 
   - name: Starting Renderd
     systemd:
