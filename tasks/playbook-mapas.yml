@@ -157,12 +157,12 @@
   - name: Assigning permissions to swap file
     shell: chmod 600 /swapfile
     become: yes
-    become:_user: root
+    become_user: root
 
   - name: Formating swapfile to swap format
     shell: mkswap /swapfile
     become: yes
-    become:_user: root
+    become_user: root
 
   - name: Enabling the swapfile
     shell: swapon /swapfile
