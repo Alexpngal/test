@@ -354,6 +354,6 @@
 
 
   - name: Restart Apache2
-    systemd:
-      state: restarted
-      name: Apache2
+    shell: systemctl restart Apache2
+    become: yes
+    become_user: root
