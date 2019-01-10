@@ -190,9 +190,8 @@
   - name: Change ownership
     file:
       path: /home/osm/galicia.osm.pbf
-      user: osm
+      owner: osm
       group: osm
-      
 
   - name: Load map and styles into the database
     shell: osm2pgsql --slim -d gis -C 1500 --hstore -S /home/osm/openstreetmap-carto-2.41.0/openstreetmap-carto.style galicia.osm.pbf
