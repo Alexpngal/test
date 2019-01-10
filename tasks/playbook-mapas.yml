@@ -304,14 +304,14 @@
     become_user: root
 
   - name: Starting Renderd
-    systemd:
-      state: started
-      name: renderd
+    shell: systemctl start renderd
+    become: yes
+    become_user: root
 
   - name: Enable renderd in systemd
-    systemd:
-      enabled: yes
-      name: renderd
+    shell: systemctl enable renderd
+    become: yes
+    become_user: root
 
   - name: Create file
     file:
