@@ -301,6 +301,7 @@
   - name: Reload systemd configs
     systemd:
       daemon_reload: yes
+      name: crond
 
   - name: Starting Renderd
     systemd:
