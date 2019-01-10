@@ -121,17 +121,17 @@
   - name: AddUser
     shell: adduser osm
     ignore_errors: yes
-
+#Define the password in a vault_file
   - name: Create a login user
     user:
       name: osm
       password: 'osm'
-      groups:
+      groups: osm
       state: present
       shell: /bin/bash       # Defaults to /bin/bash
       system: no             # Defaults to no
       createhome: yes        # Defaults to yes
-      home: /home/fideloper
+      home: /home/osm
 
   - name: Download Cartocss map
     get_url:
