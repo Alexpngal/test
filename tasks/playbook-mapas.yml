@@ -75,14 +75,14 @@
       state: present
 
   - name: Installing apache dev tools
-     apt:
-       name: apache2-dev
-       state: present
+    apt:
+      name: apache2-dev
+      state: present
 
   - name: Installing Apache2
     apt:
-       name: apache2
-       state: present
+      name: apache2
+      state: present
 
   - name: Installing npm
     apt:
