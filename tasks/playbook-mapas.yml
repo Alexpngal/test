@@ -139,12 +139,12 @@
        dest: /home/osm
        mode: 0660
 
-  - name:
+  - name: Unzip CartoCss map
     unarchive:
-       src: /home/osm/v2.41.0.tar.gz
+       src: /home/osm/openstreetmap-carto-2.41.0.tar.gz
        dest: /home/osm/
 
-  - name: Download Cartocss map
+  - name: Download Map
     get_url:
        url: http://download.openstreetmap.fr/extracts/europe/spain/galicia.osm.pbf
        dest: /home/osm
