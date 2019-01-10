@@ -1,7 +1,6 @@
 ---
 - name: Provisioning Maps Api
   hosts: localhost
-  become: True
   vars:
      # created with:
      # python -c 'import crypt; print crypt.crypt("This is my Password", "$1$SomeSalt$")'
@@ -17,6 +16,7 @@
     apt:
       name: postgresql
       state: present
+
 
   - name: Installing postgresql-contrib
     apt:
@@ -140,7 +140,9 @@
     get_url:
        url: http://github.com/gravitystorm/openstreetmap-carto/archive/v2.41.0.tar.gz
        dest: /home/osm
-       mode: 0660
+       mode: 0666
+       owner: osm
+       group: osm
 
   - name: Unzip CartoCss map
     unarchive:
@@ -152,6 +154,8 @@
        url: http://download.openstreetmap.fr/extracts/europe/spain/galicia.osm.pbf
        dest: /home/osm
        mode: 0666
+       owner: osm
+       group: osm
 
   - name: Create swapfile
     shell: fallocate -l 2G /swapfile
@@ -186,12 +190,6 @@
 #      group: root
 #      mode: 0644
 #      state: present
-
-  - name: Change ownership
-    file:
-      path: /home/osm/galicia.osm.pbf
-      owner: osm
-      group: osm
 
   - name: Load map and styles into the database
     shell: osm2pgsql --slim -d gis -C 1500 --hstore -S /home/osm/openstreetmap-carto-2.41.0/openstreetmap-carto.style galicia.osm.pbf
