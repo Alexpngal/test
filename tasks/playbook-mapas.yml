@@ -148,6 +148,8 @@
     unarchive:
        src: /home/osm/openstreetmap-carto-2.41.0.tar.gz
        dest: /home/osm/
+       owner: osm
+       group: osm
 
   - name: Download Map
     get_url:
