@@ -5,7 +5,7 @@
   vars:
      # created with:
      # python -c 'import crypt; print crypt.crypt("This is my Password", "$1$SomeSalt$")'
-     password: $6$mysecret$qTvfhHYXIlg7uVfGtzpjJ8O
+     password: $6$MSfFjsDjCsu$YzgUbB4MLeOSNcpvK2nd4NKslXtsgBvyKE7kd5fCSJYBv5ISTcrGk5kJ.zf2FDWbqoE20TBtQSfwXTUMnnVWN1
 
 
 #TO DO
