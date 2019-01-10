@@ -49,9 +49,10 @@
     apt:
       name: mapnik-utils
       state: present
-  - name:
+
+  - name: Installing node-Carto
     apt:
-      name: node-Carto
+      name: node-carto
       state: present
 
   - name: Installing git
