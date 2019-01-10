@@ -183,7 +183,7 @@
 
 
   - name: Load map and styles into the database
-    shell: osm2pgsql --slim -d gis -C 3600 --hstore -S openstreetmap-carto-2.41.0/openstreetmap-carto.style galicia.osm.pbf
+    shell: osm2pgsql --slim -d gis -C 3600 --hstore -S /home/osm/openstreetmap-carto-2.41.0/openstreetmap-carto.style galicia.osm.pbf
     become: yes
     become_user: osm
 
