@@ -152,7 +152,7 @@
   - name: Create swapfile
     shell: fallocate -l 2G /swapfile
     become: yes
-    become:_user: root
+    become_user: root
 
   - name: Assigning permissions to swap file
     shell: chmod 600 /swapfile
