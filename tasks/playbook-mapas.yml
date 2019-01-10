@@ -2,12 +2,15 @@
 - name: Provisioning Maps Api
   hosts: localhost
   become: True
+  vars:
+     # created with:
+     # python -c 'import crypt; print crypt.crypt("This is my Password", "$1$SomeSalt$")'
+     password: $6$mysecret$qTvfhHYXIlg7uVfGtzpjJ8O
 
 
 #TO DO
 #Put every package on a loop to iterate for all
 #Get the versions locked postgresql-9.5 & postgis-2.2
-
 
   tasks:
   - name: Installing postgresql
@@ -125,11 +128,11 @@
   - name: Create a login user
     user:
       name: osm
-      password: osm
+      password: {{ password }}
       groups: osm
       state: present
       shell: /bin/bash       # Defaults to /bin/bash
-      system: no             # Defaults to no
+      system: yes             # Defaults to no
       createhome: yes        # Defaults to yes
       home: /home/osm
 
