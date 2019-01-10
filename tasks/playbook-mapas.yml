@@ -125,7 +125,7 @@
   - name: Create a login user
     user:
       name: osm
-      password: 'osm'
+      password: osm
       groups: osm
       state: present
       shell: /bin/bash       # Defaults to /bin/bash
