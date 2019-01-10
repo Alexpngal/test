@@ -1,0 +1,360 @@
+---
+- name: Provisioning Maps Api
+  hosts: localhost
+  become: True
+
+
+#TO DO
+#Put every package on a loop to iterate for all
+#Get the versions locked postgresql-9.5 & postgis-2.2
+
+
+  tasks:
+  - name: Installing postgresql
+    apt:
+      name: postgresql
+      state: present
+
+  - name: Installing postgresql-contrib
+    apt:
+       name: postgresql
+       state: present
+
+  - name: Installing postgis
+    apt:
+       name: postgis
+       state: present
+
+  - name: Installing osm2pgsql
+    apt:
+       name: osm2pgsql
+       state: present
+
+  - name: Installing curl
+    apt:
+       name: curl
+       state: present
+
+  - name: Installing unzip
+    apt:
+      name: unzip
+      state: present
+
+  - name: Installing gdal-bin
+    apt:
+      name: gdal-bin
+      state: present
+
+  - name: Installing mapnik-utils
+    apt:
+      name: mapnik-utils
+      state: present
+  - name:
+    apt:
+      name: node-Carto
+      state: present
+
+  - name: Installing git
+    apt:
+      name: git
+      state: present
+
+  - name: Installing autoconf
+    apt:
+      name: autoconf
+      state: present
+
+  - name: Installing libtool
+    apt:
+      name: libtool
+      state: present
+
+  - name: Installing libmapnik-dev
+    apt:
+      name: libmapnik-dev
+      state: present
+
+  - name: Installing apache dev tools
+     apt:
+       name: apache2-dev
+       state: present
+
+  - name: Installing Apache2
+    apt:
+       name: apache2
+       state: present
+
+  - name: Installing npm
+    apt:
+      name: npm
+      state: present
+
+
+#Manage so that it gains idempotency or segment it in another repository
+
+  - name: Create osm user
+    shell: createuser osm
+    become: yes
+    become_user: postgres
+    ignore_errors: yes
+
+  - name: Create database
+    shell: createdb -E UTF8 -O osm gis
+    become: yes
+    become_user: postgres
+    ignore_errors: yes
+
+  - name: Create hstore extension on the gis database.
+    shell: psql -c "CREATE EXTENSION hstore;" -d gis
+    become: yes
+    become_user: postgres
+    ignore_errors: yes
+
+  - name: Create postgis extension on the gis database.
+    shell: psql -c "CREATE EXTENSION postgis;" -d gis
+    become: yes
+    become_user: postgres
+    ignore_errors: yes
+
+#Needs revision as we need to set name/password
+  - name: AddUser
+    shell: adduser osm
+    ignore_errors: yes
+
+  - name: Create a login user
+      user:
+       name: osm
+       password: 'osm'
+       groups:
+       state: present
+       shell: /bin/bash       # Defaults to /bin/bash
+       system: no             # Defaults to no
+       createhome: yes        # Defaults to yes
+       home: /home/fideloper
+
+  - name: Download Cartocss map
+    get_url:
+       url: http://github.com/gravitystorm/openstreetmap-carto/archive/v2.41.0.tar.gz
+       dest: /home/osm
+       mode: 0660
+
+  - name:
+    unarchive:
+       src: /home/osm/v2.41.0.tar.gz
+       dest: /home/osm/
+
+  - name: Download Cartocss map
+    get_url:
+       url: http://download.openstreetmap.fr/extracts/europe/spain/galicia.osm.pbf
+       dest: /home/osm
+       mode: 0660
+
+  - name: Create swapfile
+    shell: fallocate -l 2G /swapfile
+    become: yes
+    become:_user: root
+
+  - name: Assigning permissions to swap file
+    shell: chmod 600 /swapfile
+    become: yes
+    become:_user: root
+
+  - name: Formating swapfile to swap format
+    shell: mkswap /swapfile
+    become: yes
+    become:_user: root
+
+  - name: Enabling the swapfile
+    shell: swapon /swapfile
+    become: yes
+    become_user: root
+
+#Function to active when host connection would go through SSH. Not needed for localhost
+#  - name: Modify keep alive
+#    lineinfile:
+#      path: /etc/ssh/ssh_config
+#      line: ServerAliveInterval 60
+#      insertafter: EOF
+#      owner: root
+#      group: root
+#      mode: 0644
+#      state: present
+
+
+  - name: Load map and styles into the database
+    shell: osm2pgsql --slim -d gis -C 3600 --hstore -S openstreetmap-carto-2.41.0/openstreetmap-carto.style galicia.osm.pbf
+    become: yes
+    become_user: osm
+
+  - name: Waiting for shell to finish
+    wait_for: timeout=500
+    delegate_to: localhost
+
+  - name: Downloading mod_tile repository
+    git:
+      repo: https://github.com/openstreetmap/mod_tile.git
+      dest: /home/gotaki
+
+  - name: Running autogen script
+    shell: ./autogen.sh
+    args:
+      chdir: /home/gotaki/mod_tile
+
+  - name: Waiting for autogen to finish
+    wait_for: timeout=60
+    delegate_to: localhost
+
+  - name: Running configure script
+    shell: ./configure
+    args:
+      chdir: /home/gotaki/mod_tile
+
+  - name: Waiting for configure script to finish
+    wait_for: timeout=60
+    delegate_to: localhost
+
+  - name: building solution
+    shell: make
+    args:
+      chdir: /home/gotaki/mod_tile
+
+  - name: Waiting for map solution to be built
+    wait_for: timeout=120
+    delegate_to: localhost
+
+  - name: Installing solution
+    shell: make install
+    become: styles
+    become_user: root
+    args:
+      chdir: /home/gotaki/mod_tile
+
+  - name: Waiting for installing built solution
+    wait_for: timeout=120
+    delegate_to: localhost
+
+  - name: Installing mod_tile
+    shell: make install-mod_tile
+    become: yes
+    become_user: root
+    args:
+      chdir: /home/gotaki/mod_tile
+
+  - name: Waiting for mod_tile to be installed
+    wait_for: timeout=180
+    delegate_to: localhost
+
+  - name: Running shapefiles scripts
+    shell: ./get-shapefiles.sh
+    become: yes
+    become_user: osm
+    args:
+      chdir: /home/osm/openstreetmap-carto-2.41.0/
+
+  - name: Waiting for shapefile script to finish
+    wait_for: timeout=240
+    delegate_to: localhost
+
+  - name: Building map xml file
+    shell: carto project.mml > style.xml
+    become: yes
+    become_user: osm
+    args:
+      chdir: /home/osm/openstreetmap-carto-2.41.0/
+
+  - name: Waiting for xml file to be generated
+    wait_for: timeout=240
+    delegate_to: localhost
+
+  - name: Copy Renderd template
+    template:
+      src: /templates/renderd-conf.j2
+      dest: /usr/local/etc/renderd.conf
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Install renderd init script
+    copy:
+      src: /home/gotaki/mod_tile/debian/renderd.init
+      dest: /etc/init.d/renderd
+      user: root
+      group: root
+      mode: 0755
+
+  - name: Edit the renderd init file
+    template:
+      src: /templates/renderd-init.j2
+      dest: /etc/init.d/renderd
+      owner: root
+      group: root
+      mode: 0644
+
+      Create the following file and set osm the owner.
+
+  - name: Create a file for mod_tile
+    file:
+     path: /var/lib/mod_tile
+     state: touch
+     user: osm
+     group: osm
+     mode:  0755
+
+  - name: Reload systemd configs
+    systemd:
+      daemon_reload: yes
+
+  - name: Starting Renderd
+    systemd:
+      state: started
+      name: renderd
+
+  - name: Enable renderd in systemd
+    systemd:
+      enabled: yes
+      name: renderd
+
+  - name: Create file
+    file:
+      dest: /etc/apache2/mods-available/mod_tile.load
+      state: touch
+      user: root
+      group: root
+      mode: 0644
+
+  - name: Load tile module
+    lineinfile:
+      path: /etc/apache2/mods-available/mod_tile.load
+      line: LoadModule tile_module /usr/lib/apache2/modules/mod_tile.so
+      state: present
+
+  - name: Create a symlink
+    shell: ln -s /etc/apache2/mods-available/mod_tile.load /etc/apache2/mods-enabled/
+    become: yes
+    become_user: root
+
+  - name: Edit the default Virtual Host site
+    file:
+      path: /etc/apache2/sites-enabled/000-default.conf
+      state: touch
+      user: root
+      group: root
+      mode: 0777
+
+  - name: Edit default virtual host site
+    blockinfile:
+      path: /etc/apache2/sites-enabled/000-default.conf
+      insertafter: "#ServerName www.example.com"
+      content: |
+          LoadTileConfigFile /usr/local/etc/renderd.conf
+          ModTileRenderdSocketName /var/run/renderd/renderd.sock
+          # Timeout before giving up for a tile to be rendered
+          ModTileRequestTimeout 0
+          # Timeout before giving up for a tile to be rendered that is otherwise missing
+          ModTileMissingRequestTimeout 30
+
+
+  - name: Restart Apache2
+    systemd:
+      state: restarted
+      name: Apache2
