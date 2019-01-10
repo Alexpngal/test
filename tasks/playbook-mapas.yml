@@ -128,7 +128,7 @@
   - name: Create a login user
     user:
       name: osm
-      password: {{ password }}
+      password: "{{ password }}"
       groups: osm
       state: present
       shell: /bin/bash       # Defaults to /bin/bash
