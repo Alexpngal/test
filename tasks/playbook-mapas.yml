@@ -165,6 +165,7 @@
     shell: mkswap /swapfile
     become: yes
     become_user: root
+    ignore_errors: yes
 
   - name: Enabling the swapfile
     shell: swapon /swapfile
