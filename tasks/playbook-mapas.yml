@@ -194,18 +194,24 @@
 #      state: present
 
   - name: Load map and styles into the database
-    shell: osm2pgsql --slim -d gis -C 1500 --hstore -S /home/osm/openstreetmap-carto-2.41.0/openstreetmap-carto.style galicia.osm.pbf
+    shell: osm2pgsql --slim -d gis -C 1500 --hstore -S /home/osm/openstreetmap-carto-2.41.0/openstreetmap-carto.style /home/osm/galicia.osm.pbf
     become: yes
     become_user: osm
 
   - name: Waiting for shell to finish
-    wait_for: timeout=500
+    wait_for: timeout=60
     delegate_to: localhost
 
   - name: Downloading mod_tile repository
     git:
       repo: https://github.com/openstreetmap/mod_tile.git
-      dest: /home/gotaki
+      dest: /home/gotaki/mod
+      force: yes
+
+  - name: Copy repository to user home folder
+    copy:
+      src: /home/gotaki/mod
+      dest: /home/gokaki
 
   - name: Running autogen script
     shell: ./autogen.sh
@@ -231,7 +237,7 @@
       chdir: /home/gotaki/mod_tile
 
   - name: Waiting for map solution to be built
-    wait_for: timeout=120
+    wait_for: timeout=60
     delegate_to: localhost
 
   - name: Installing solution
@@ -239,7 +245,7 @@
     become: styles
     become_user: root
     args:
-      chdir: /home/gotaki/mod_tile
+      chdir: /home/gotaki/mod/mod_tile
 
   - name: Waiting for installing built solution
     wait_for: timeout=120
