@@ -124,7 +124,7 @@
   - name: AddUser
     shell: adduser osm
     ignore_errors: yes
-#Define the password in a vault_file
+
   - name: Create a login user
     user:
       name: osm
@@ -193,14 +193,14 @@
 #      mode: 0644
 #      state: present
 
-#  - name: Load map and styles into the database
-#    shell: osm2pgsql --slim -d gis -C 1500 --hstore -S /home/osm/openstreetmap-carto-2.41.0/openstreetmap-carto.style /home/osm/galicia.osm.pbf
-#    become: yes
-#    become_user: osm
+  - name: Load map and styles into the database
+    shell: osm2pgsql --slim -d gis -C 1500 --hstore -S /home/osm/openstreetmap-carto-2.41.0/openstreetmap-carto.style /home/osm/galicia.osm.pbf
+    become: yes
+    become_user: osm
 
-  - name: Waiting time for next task
-    wait_for: timeout=60
-    delegate_to: localhost
+#  - name: Waiting time for next task
+#    wait_for: timeout=60
+#    delegate_to: localhost
 
   - name: Downloading mod_tile repository
     git:
@@ -227,18 +227,18 @@
     args:
       chdir: /home/gotaki/mod_tile
 
-  - name: Waiting for configure script to finish
-    wait_for: timeout=60
-    delegate_to: localhost
+#  - name: Waiting for configure script to finish
+#    wait_for: timeout=60
+#    delegate_to: localhost
 
   - name: building solution
     shell: make
     args:
       chdir: /home/gotaki/mod_tile
 
-  - name: Waiting for map solution to be built
-    wait_for: timeout=60
-    delegate_to: localhost
+#  - name: Waiting for map solution to be built
+#    wait_for: timeout=60
+#    delegate_to: localhost
 
   - name: Installing solution
     shell: make install
@@ -247,9 +247,9 @@
     args:
       chdir: /home/gotaki/mod_tile
 
-  - name: Waiting for installing built solution
-    wait_for: timeout=60
-    delegate_to: localhost
+#  - name: Waiting for installing built solution
+#    wait_for: timeout=60
+#    delegate_to: localhost
 
   - name: Installing mod_tile
     shell: make install-mod_tile
@@ -258,9 +258,9 @@
     args:
       chdir: /home/gotaki/mod_tile
 
-  - name: Waiting for mod_tile to be installed
-    wait_for: timeout=60
-    delegate_to: localhost
+#  - name: Waiting for mod_tile to be installed
+#    wait_for: timeout=60
+#    delegate_to: localhost
 
   - name: Running shapefiles scripts
     shell: ./get-shapefiles.sh
@@ -269,9 +269,9 @@
     args:
       chdir: /home/osm/openstreetmap-carto-2.41.0/
 
-  - name: Waiting for shapefile script to finish
-    wait_for: timeout=60
-    delegate_to: localhost
+#  - name: Waiting for shapefile script to finish
+#    wait_for: timeout=60
+#    delegate_to: localhost
 
   - name: Building map xml file
     shell: carto project.mml > style.xml
@@ -280,13 +280,13 @@
     args:
       chdir: /home/osm/openstreetmap-carto-2.41.0/
 
-  - name: Waiting for xml file to be generated
-    wait_for: timeout=60
-    delegate_to: localhost
+#  - name: Waiting for xml file to be generated
+#    wait_for: timeout=60
+#    delegate_to: localhost
 
   - name: Copy Renderd template
     template:
-      src: home/gotaki/test/templates/renderd-conf.j2
+      src: renderd-conf.j2
       dest: /usr/local/etc/renderd.conf
       owner: root
       group: root
@@ -302,7 +302,7 @@
 
   - name: Edit the renderd init file
     template:
-      src: home/gotaki/test/templates/renderd-init.j2
+      src: renderd-init.j2
       dest: /etc/init.d/renderd
       owner: root
       group: root
@@ -311,8 +311,8 @@
   - name: Create a file for mod_tile
     file:
      path: /var/lib/mod_tile
-     state: touch
-     user: osm
+     state: directory
+     owner: osm
      group: osm
      mode:  0755
 
@@ -335,32 +335,32 @@
     file:
       dest: /etc/apache2/mods-available/mod_tile.load
       state: touch
-      user: root
+      owner: root
       group: root
       mode: 0644
 
   - name: Load tile module
     lineinfile:
-      path: /etc/apache2/mods-available/mod_tile.load
+      dest: /etc/apache2/mods-available/mod_tile.load
       line: LoadModule tile_module /usr/lib/apache2/modules/mod_tile.so
       state: present
 
-  - name: Create a symlink
-    shell: ln -s /etc/apache2/mods-available/mod_tile.load /etc/apache2/mods-enabled/
-    become: yes
-    become_user: root
+#  - name: Create a symlink
+#    shell: ln -s /etc/apache2/mods-available/mod_tile.load /etc/apache2/mods-enabled/
+#    become: yes
+#    become_user: root
 
   - name: Edit the default Virtual Host site
     file:
-      path: /etc/apache2/sites-enabled/000-default.conf
+      path: /etc/apache2/sites-available/000-default.conf
       state: touch
-      user: root
+      owner: root
       group: root
       mode: 0777
 
   - name: Edit default virtual host site
     blockinfile:
-      path: /etc/apache2/sites-enabled/000-default.conf
+      dest: /etc/apache2/sites-available/000-default.conf
       insertafter: "#ServerName www.example.com"
       content: |
           LoadTileConfigFile /usr/local/etc/renderd.conf
@@ -372,6 +372,6 @@
 
 
   - name: Restart Apache2
-    shell: systemctl restart Apache2
+    shell: systemctl restart apache2
     become: yes
     become_user: root
