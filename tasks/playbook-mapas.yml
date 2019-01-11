@@ -345,10 +345,10 @@
       line: LoadModule tile_module /usr/lib/apache2/modules/mod_tile.so
       state: present
 
-#  - name: Create a symlink
-#    shell: ln -s /etc/apache2/mods-available/mod_tile.load /etc/apache2/mods-enabled/
-#    become: yes
-#    become_user: root
+  - name: Create a symlink
+    shell: ln -s /etc/apache2/mods-available/mod_tile.load /etc/apache2/mods-enabled/
+    become: yes
+    become_user: root
 
   - name: Edit the default Virtual Host site
     file:
