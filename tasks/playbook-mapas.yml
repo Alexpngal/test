@@ -210,7 +210,7 @@
 
   - name: Copy repository to user home folder
     copy:
-      src: /home/gotaki/mod
+      src: /home/gotaki/mod_tile
       dest: /home/gokaki
 
   - name: Running autogen script
