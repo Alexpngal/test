@@ -193,19 +193,19 @@
 #      mode: 0644
 #      state: present
 
-  - name: Load map and styles into the database
-    shell: osm2pgsql --slim -d gis -C 1500 --hstore -S /home/osm/openstreetmap-carto-2.41.0/openstreetmap-carto.style /home/osm/galicia.osm.pbf
-    become: yes
-    become_user: osm
+#  - name: Load map and styles into the database
+#    shell: osm2pgsql --slim -d gis -C 1500 --hstore -S /home/osm/openstreetmap-carto-2.41.0/openstreetmap-carto.style /home/osm/galicia.osm.pbf
+#    become: yes
+#    become_user: osm
 
-  - name: Waiting for shell to finish
+  - name: Waiting time for next task
     wait_for: timeout=60
     delegate_to: localhost
 
   - name: Downloading mod_tile repository
     git:
       repo: https://github.com/openstreetmap/mod_tile.git
-      dest: /home/gotaki/mod
+      dest: /home/gotaki/mod_tile
       force: yes
 
   - name: Copy repository to user home folder
