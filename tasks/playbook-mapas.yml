@@ -363,12 +363,12 @@
       dest: /etc/apache2/sites-available/000-default.conf
       insertafter: "#ServerName www.example.com"
       content: |
-          LoadTileConfigFile /usr/local/etc/renderd.conf
-          ModTileRenderdSocketName /var/run/renderd/renderd.sock
-          # Timeout before giving up for a tile to be rendered
-          ModTileRequestTimeout 0
-          # Timeout before giving up for a tile to be rendered that is otherwise missing
-          ModTileMissingRequestTimeout 30
+                  LoadTileConfigFile /usr/local/etc/renderd.conf
+                  ModTileRenderdSocketName /var/run/renderd/renderd.sock
+                  # Timeout before giving up for a tile to be rendered
+                  ModTileRequestTimeout 0
+                  # Timeout before giving up for a tile to be rendered that is otherwise missing
+                  ModTileMissingRequestTimeout 30
 
 
   - name: Restart Apache2
