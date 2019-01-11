@@ -245,10 +245,10 @@
     become: styles
     become_user: root
     args:
-      chdir: /home/gotaki/mod/mod_tile
+      chdir: /home/gotaki/mod_tile
 
   - name: Waiting for installing built solution
-    wait_for: timeout=120
+    wait_for: timeout=60
     delegate_to: localhost
 
   - name: Installing mod_tile
@@ -259,7 +259,7 @@
       chdir: /home/gotaki/mod_tile
 
   - name: Waiting for mod_tile to be installed
-    wait_for: timeout=180
+    wait_for: timeout=60
     delegate_to: localhost
 
   - name: Running shapefiles scripts
@@ -270,7 +270,7 @@
       chdir: /home/osm/openstreetmap-carto-2.41.0/
 
   - name: Waiting for shapefile script to finish
-    wait_for: timeout=240
+    wait_for: timeout=60
     delegate_to: localhost
 
   - name: Building map xml file
@@ -281,7 +281,7 @@
       chdir: /home/osm/openstreetmap-carto-2.41.0/
 
   - name: Waiting for xml file to be generated
-    wait_for: timeout=240
+    wait_for: timeout=60
     delegate_to: localhost
 
   - name: Copy Renderd template
@@ -292,13 +292,13 @@
       group: root
       mode: 0644
 
-  - name: Install renderd init script
-    copy:
-      src: /home/gotaki/mod_tile/debian/renderd.init
-      dest: /etc/init.d/renderd
-      user: root
-      group: root
-      mode: 0755
+#  - name: Install renderd init script
+#    copy:
+#      src: /home/gotaki/mod_tile/debian/renderd.init
+#      dest: /etc/init.d/renderd
+#      user: root
+#      group: root
+#      mode: 0755
 
   - name: Edit the renderd init file
     template:
@@ -306,7 +306,7 @@
       dest: /etc/init.d/renderd
       owner: root
       group: root
-      mode: 0644
+      mode: 0755
 
   - name: Create a file for mod_tile
     file:
