@@ -286,7 +286,7 @@
 
   - name: Copy Renderd template
     template:
-      src: /templates/renderd-conf.j2
+      src: home/gotaki/test/templates/renderd-conf.j2
       dest: /usr/local/etc/renderd.conf
       owner: root
       group: root
@@ -302,7 +302,7 @@
 
   - name: Edit the renderd init file
     template:
-      src: /templates/renderd-init.j2
+      src: home/gotaki/test/templates/renderd-init.j2
       dest: /etc/init.d/renderd
       owner: root
       group: root
